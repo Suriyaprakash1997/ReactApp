@@ -36,8 +36,8 @@ const CustomDataTable = (props) => {
             var sDirection=item[0].sort;
             setModel(prevModel => ({
               ...prevModel,
-              SORTCOL: sColumn,
-              SORTDIR: sDirection
+              SortCol: sColumn,
+              SortOrder: sDirection
             }));
       };
       const handlePageModelChange=(item)=>{
@@ -50,7 +50,7 @@ const CustomDataTable = (props) => {
       const handleSearchChange = (event) => {
         setModel(prevModel => ({
           ...prevModel,
-          SEARCHSTRING: event.target.value  // Remove extra []
+          SearchString: event.target.value  // Remove extra []
         }));
       };
       function handleDeleteClick(type,Id){
@@ -63,7 +63,7 @@ const CustomDataTable = (props) => {
     <>
                   <div className='row d-flex flex-reverse justify-content-end'>
           <div className='col-lg-4'>
-          <TextField fullWidth label="Search" name='SEARCHSTRING' value={model.SEARCHSTRING} onChange={handleSearchChange}/>
+          <TextField fullWidth label="Search" name='SearchString' value={model.SearchString} onChange={handleSearchChange}/>
           </div>
         
         </div>

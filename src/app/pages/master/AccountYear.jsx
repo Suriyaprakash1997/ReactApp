@@ -6,6 +6,9 @@ import { Span } from "app/components/Typography";
 import { useFormik } from 'formik';
 import { accountYearValidator } from "app/validation/masterValidation";
 import CustomDataTable from "app/element/CustomDataTable";
+import { GetPagination,DeleteAccountYear,SaveAccountYear } from "../../../services/Master/AccountYearService";
+import DeleteConfirmDialog from "app/element/DeleteConfirmDialog";
+import { ToastContainer, toast } from 'react-toastify';
 const AccountYear = () => {
   const [data,setData]=useState([])
   const [model,setModel]=useState({})
@@ -20,7 +23,7 @@ const AccountYear = () => {
     initialValues: initialValues,
     validationSchema:accountYearValidator,
     onSubmit: (values) => {
-      console.log(values);
+      handleSubmit(values);
     },
   });
 const handleGenerate=()=>{
@@ -46,43 +49,109 @@ const handleGenerate=()=>{
    formik.setFieldValue('startDate', sDate);
    formik.setFieldValue('endDate', eDate);  
 }
+const handleSubmit=(values)=>{
+  SaveAccountYear(values)
+  .then((res)=>{
+    var data=res.data;
+    if(data.status>0){
+      toast.success(data.message);
+      setVisible(false);
+      formik.resetForm();
+      getData(model);
+    }
+    else{
+      toast.error(data.message);
+    }
+  }).catch((error)=>{
+    toast.error(error.message);
+  })
+}
+useEffect(()=>{ 
+  getData(model);
+} ,[model])
+const getData=async(model)=>{
+  const response=await GetPagination(model);
+  if(response.status===200){
+    setData(response.data.data);
+    setTotalCount(response.data.totalPages);
+  }
+}
+const handleDeleteClick=(type,Id)=>{
+  if(type==="Yes"){
+    DeleteAccountYear(Id)
+   .then((res)=>{
+    var data=res.data;
+    if(data.status>0){
+      toast.success(data.message);
+      getData()
+      }
+      else{
+        toast.error(data.message);
+      }
+    
+      })
+      .catch((error)=>{
+        toast.error(error.message);
+      })
+  }
+ }
 const columns = [
   {
-    field: 'accountYear',
+    field: 'sno',
+    headerName: 'S.No',
+    renderCell: (params) => {
+      const allRowIds = params.api.getAllRowIds();
+      const rowIndex = allRowIds.indexOf(params.id);
+      return <>{rowIndex + 1}</>;
+      },
+    width: 100,
+    sortable: false,
+    filterable: false,
+  },
+  {
+    field: 'accountyear',
     headerName: 'Account Year',
     flex: 1,
     minwidth:200,
   },
   {
-    field: 'startDate',
+    field: 'startdate',
     headerName: 'Start Date',
     flex: 1,
     minwidth:200,
     sortable:false
   },
   {
-    field: 'endDate',
+    field: 'enddate',
     headerName: 'End Date',
     minwidth:200,
     flex: 1,
     sortable:false
   },
+  {
+    field: 'id',
+    headerName: 'Action',
+    renderCell: (params) => {
+      var Id=params.row.id;
+      return(
+        <>
+         <DeleteConfirmDialog Id={Id} onConfirm={handleDeleteClick}/>
+        </>
+      )
+      },
+    width: 100,
+    sortable: false,
+    filterable: false,
+  },
 ];
-const handleEdit=()=>{
-
-}
-const handleDeleteClick=()=>{
-  
-}
-const datas=[{
-  id:1,accountYear:"2025-2026",startDate:"01-04-2025",endDate:"31-03-2026"
-}]
 const cancel=()=>{
   setVisible(false);
   formik.resetForm();
 }
   return (
-    <div>
+   
+    <>
+     <ToastContainer/>
       {visible&&
        <Card>
        <CardHeader title="Account Year"/>
@@ -132,7 +201,7 @@ const cancel=()=>{
 <div className="d-flex justify-content-between align-item-center">
 
 <CardHeader title="Account Year List"/>
-<div>
+<div className="mx-1 my-2">
   <Button sx={{mx:2}} color="primary" variant="contained" type="button" onClick={()=>setVisible(true)}>
    <Icon>add_circle</Icon>
    <Span sx={{ pl: 1, textTransform: "capitalize" }}>Add</Span>
@@ -143,19 +212,18 @@ const cancel=()=>{
         <CardContent>
         <CustomDataTable 
 columns={columns}
-rows={datas}
+rows={data}
 model={model}
 setModel={setModel}
 TotalCount={totalCount}
 actionField='roleId'
 IsActionNeed={false}
-OnEditConfirm={handleEdit}
 OnDeleteConfirm={handleDeleteClick}
   />
         </CardContent>
       </Card>
      </div>
-    </div>
+    </>
   );
 };
 
