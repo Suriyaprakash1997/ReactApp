@@ -10,3 +10,9 @@ export const customerValidator=yup.object({
     companyName: yup.string('please enter company name')
     .required('please enter company name'),
 })
+export const invoiceValidator=yup.object({
+    invoiceNo: yup.string('please enter customer name')
+    .required('please enter customer name'),
+    customerName: yup.string('please enter company name')
+    .required('please enter company name'),
+})

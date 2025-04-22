@@ -9,7 +9,7 @@ const navigations = [
       { name: "Project", iconText: "P", path: "/project" }
     ]
   },
-  { name: "Invoice", path: "/invoice", icon: "article" },
+  { name: "Invoice", path: "/invoicelist", icon: "article" },
   // { label: "PAGES", type: "label" },
   // {
   //   name: "Session/Auth",
