@@ -5,7 +5,7 @@ const navigations = [
     icon: "hive",
     children: [
       { name: "Account Year", iconText: "AY", path: "/accountYear" },
-      { name: "Customer", iconText: "C", path: "/customer" },
+      { name: "Customer", iconText: "C", path: "/customerlist" },
       { name: "Project", iconText: "P", path: "/project" }
     ]
   },

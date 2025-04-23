@@ -11,6 +11,7 @@ import materialRoutes from "app/views/material-kit/MaterialRoutes";
 
 
 const Customer = Loadable(lazy(() => import("./pages/master/Customer")));
+const CustomerList = Loadable(lazy(() => import("./pages/master/CustomerList")));
 const Project = Loadable(lazy(() => import("./pages/master/Project")));
 const InvoiceList = Loadable(lazy(() => import("./pages/transaction/InvoiceList")));
 const Invoice = Loadable(lazy(() => import("./pages/transaction/Invoice")));
@@ -34,7 +35,8 @@ const routes = [
       // e-chart route
       { path: "/charts/echarts", element: <AppEchart />, auth: authRoles.editor },
 
-      {path:'/customer',element:<Customer/>},
+      {path:'/customer/:id?',element:<Customer/>},
+      {path:'/customerlist',element:<CustomerList/>},
       {path:'/project',element:<Project/>},
       {path:'/invoicelist',element:<InvoiceList/>},
       {path:'/invoice/:id?',element:<Invoice/>}

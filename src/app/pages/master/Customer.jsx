@@ -1,4 +1,5 @@
 import { useState,useEffect } from "react";
+import { useNavigate,useParams } from "react-router-dom";
 import {Card,CardHeader,CardContent,Button ,TextField} from "@mui/material";
 import Icon from "@mui/material/Icon";
 import Grid from "@mui/material/Grid2";
@@ -6,7 +7,9 @@ import { Span } from "app/components/Typography";
 import { useFormik } from 'formik';
 import { customerValidator } from "app/validation/masterValidation";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
+import { ToastContainer, toast } from 'react-toastify';
 const Customer=()=>{
+  const {id}=useParams();
     const initialValues={
         customerName: "",
         companyName:"",
@@ -29,6 +32,7 @@ const Customer=()=>{
         attendPerson:"",
         attendDesignation:""
       }
+      const navigate=useNavigate();
         const formik = useFormik({
           initialValues: initialValues,
           validationSchema:customerValidator,
@@ -48,7 +52,16 @@ const Customer=()=>{
     return(
         <>
         <Card>
+        <div className="d-flex justify-content-between align-item-center">
+        
         <CardHeader title="Customer"/>
+        <div className="mx-1 my-2">
+          <Button sx={{mx:2}} color="primary" variant="contained" type="button" onClick={() => navigate("/customerlist")}>  
+           <Icon>arrow_back</Icon>
+           <Span sx={{ pl: 1, textTransform: "capitalize" }}>Back</Span>
+         </Button>
+          </div>
+        </div>
         <CardContent>
           <form onSubmit={formik.handleSubmit} autoComplete="off">
 <Grid container spacing={2}>
