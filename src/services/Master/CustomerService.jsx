@@ -11,3 +11,6 @@ export const DeleteCustomer= (id) => {
 export const SaveCustomer = (params) => {
     return axiosConfig.post(`customer`,params);
 };
+export const UpdateCustomer = (id,params) => {
+    return axiosConfig.put(`customer/${id}`,params);
+};

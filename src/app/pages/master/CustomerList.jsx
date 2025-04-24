@@ -4,7 +4,7 @@ import {Card,CardHeader,CardContent,Button ,TextField} from "@mui/material";
 import Icon from "@mui/material/Icon";
 import { Span } from "app/components/Typography";
 import CustomDataTable from "app/element/CustomDataTable";
-import { GetPagination,DeleteCustomer,GetCustomer } from "../../../services/Master/CustomerService";
+import { GetPagination,DeleteCustomer } from "../../../services/Master/CustomerService";
 import { ToastContainer, toast } from 'react-toastify';
 
 const CustomerList = () => {
@@ -18,7 +18,6 @@ const CustomerList = () => {
     const getData=async(model)=>{
       const response=await GetPagination(model);
       if(response.status===200){  
-        console.log(response.data.data) 
          setData(response.data.data);
         setTotalCount(response.data.totalPages);
       }
@@ -39,12 +38,14 @@ const CustomerList = () => {
       {
         field: 'companyName',
         headerName: 'Company',
-        width:100,
+        minWidth: 200,
+        flex: 1,
       },
       {
         field: 'customerName',
         headerName: 'Customer',
-        width:100,
+        minWidth: 200,
+        flex: 1,
       },
 
       {
@@ -89,10 +90,20 @@ const CustomerList = () => {
     ];
     const handleDeleteClick=(type,Id)=>{
       console.log(type,Id)
-      //DeleteCustomer(Id)
+      Delete(Id)
+    }
+    const Delete=async(id)=>{
+      const response=await DeleteCustomer(id);
+      if(response.status===200){
+        toast.success("Customer Deleted Successfully");
+        getData(model);
+      }else{
+        toast.error("Error in Deleting Customer");
+      }
     }
   return (
     <>
+    <ToastContainer/>
       <Card>
         <div className="d-flex justify-content-between align-item-center">
         

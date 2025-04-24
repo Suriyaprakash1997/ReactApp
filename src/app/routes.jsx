@@ -35,7 +35,7 @@ const routes = [
       // e-chart route
       { path: "/charts/echarts", element: <AppEchart />, auth: authRoles.editor },
 
-      {path:'/customer/:id?',element:<Customer/>},
+      {path:'/customer/:customerid?',element:<Customer/>},
       {path:'/customerlist',element:<CustomerList/>},
       {path:'/project',element:<Project/>},
       {path:'/invoicelist',element:<InvoiceList/>},

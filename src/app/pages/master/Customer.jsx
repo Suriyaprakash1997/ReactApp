@@ -7,39 +7,73 @@ import { Span } from "app/components/Typography";
 import { useFormik } from 'formik';
 import { customerValidator } from "app/validation/masterValidation";
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
+import { GetCustomer,SaveCustomer,UpdateCustomer } from "../../../services/Master/CustomerService";
 import { ToastContainer, toast } from 'react-toastify';
 const Customer=()=>{
-  const {id}=useParams();
+  const {customerid}=useParams();
     const initialValues={
         customerName: "",
         companyName:"",
         address:"",
         email:"",
-        address:"",
         mobile:"",
         phone:"",
-        web:"",
-        skype:"",
-        gstno:"",
-        gst:"",
-        freelance:"",
-        code:"",
-        upwork:"",
-        currecyCode:"",
+        gST:"",
+        gSTNumber:"",
+        currencyCode:"",
         currency:"",
-        status:"",
-        country:"",
-        attendPerson:"",
-        attendDesignation:""
+        status:0,
+        countryCode:0
       }
       const navigate=useNavigate();
+      useEffect(() => {
+        const fetchCustomer = async () => {
+          if (customerid) {
+            await getCustomerById(customerid);
+          }
+        };
+        fetchCustomer();
+      }, []);
+      const getCustomerById=async(id)=>{
+        const response=await GetCustomer(id); 
+        if(response.status===200){
+          const data=response.data;
+          formik.setValues(data);
+          console.log(data);
+        } 
+        else{
+          toast.error("Something went wrong!");
+        } 
+      }
         const formik = useFormik({
           initialValues: initialValues,
           validationSchema:customerValidator,
           onSubmit: (values) => {
-            console.log(values);
+            PersistCustomer(values)
           },
         });
+        const PersistCustomer=async(values)=>{
+          let response=null;
+          if(customerid) {
+             response=await UpdateCustomer(customerid,values); 
+          }
+          else {
+             response=await SaveCustomer(values); 
+          } 
+          if(response.status===200){
+            const data=response.data;
+            if(data.status>0){
+              toast.success(data.message);
+              setTimeout(() => {
+              navigate("/customerlist");
+              }, 2000);
+             
+            }
+          } 
+          else{
+            toast.error("Something went wrong!");
+          }
+        }
         const status = [
           {id:1, label: "Active" },
           { id:2,label: "Non-Active" },
@@ -51,9 +85,9 @@ const Customer=()=>{
         ];
     return(
         <>
+        <ToastContainer/>
         <Card>
         <div className="d-flex justify-content-between align-item-center">
-        
         <CardHeader title="Customer"/>
         <div className="mx-1 my-2">
           <Button sx={{mx:2}} color="primary" variant="contained" type="button" onClick={() => navigate("/customerlist")}>  
@@ -120,7 +154,7 @@ const Customer=()=>{
 <Grid size={{ md: 6, xs: 12 }}>
 <TextField
                 fullWidth
-                type="text"
+                type="email"
                 name="email"
                 value={formik.values.email}
                 onChange={formik.handleChange}
@@ -134,104 +168,49 @@ const Customer=()=>{
 <TextField
                 fullWidth
                 type="text"
-                name="web"
-                value={formik.values.web}
+                name="address"
+                value={formik.values.address}
                 onChange={formik.handleChange}
-                label="Web"
+                label="Address"
                 onBlur={formik.handleBlur}
-                error={formik.touched.web && Boolean(formik.errors.web)}
-                helperText={formik.touched.web && formik.errors.web}
+                error={formik.touched.address && Boolean(formik.errors.address)}
+                helperText={formik.touched.address && formik.errors.address}
               />
 </Grid>
 <Grid size={{ md: 6, xs: 12 }}>
 <TextField
                 fullWidth
                 type="text"
-                name="skype"
-                value={formik.values.skype}
-                onChange={formik.handleChange}
-                label="Skype"
-                onBlur={formik.handleBlur}
-                error={formik.touched.skype && Boolean(formik.errors.skype)}
-                helperText={formik.touched.skype && formik.errors.skype}
-              />
-</Grid>
-<Grid size={{ md: 6, xs: 12 }}>
-<TextField
-                fullWidth
-                type="text"
-                name="gst"
-                value={formik.values.gst}
+                name="gST"
+                value={formik.values.gST}
                 onChange={formik.handleChange}
                 label="GST (%)"
                 onBlur={formik.handleBlur}
-                error={formik.touched.gst && Boolean(formik.errors.gst)}
-                helperText={formik.touched.gst && formik.errors.gst}
+                error={formik.touched.gST && Boolean(formik.errors.gST)}
+                helperText={formik.touched.gST && formik.errors.gST}
               />
 </Grid>
 <Grid size={{ md: 6, xs: 12 }}>
 <TextField
                 fullWidth
                 type="text"
-                name="gstno"
-                value={formik.values.gstno}
+                name="gSTNumber"
+                value={formik.values.gSTNumber}
                 onChange={formik.handleChange}
                 label="GST No"
                 onBlur={formik.handleBlur}
-                error={formik.touched.gstno && Boolean(formik.errors.gstno)}
-                helperText={formik.touched.gstno && formik.errors.gstno}
+                error={formik.touched.gSTNumber && Boolean(formik.errors.gSTNumber)}
+                helperText={formik.touched.gSTNumber && formik.errors.gSTNumber}
               />
 </Grid>
 <Grid size={{ md: 6, xs: 12 }}>
 <TextField
                 fullWidth
                 type="text"
-                name="freelance"
-                value={formik.values.freelance}
-                onChange={formik.handleChnange}
-                label="Freelance"
-                onBlur={formik.handleBlur}
-                error={formik.touched.freelance && Boolean(formik.errors.freelance)}
-                helperText={formik.touched.freelance && formik.errors.freelance}
-              />
-</Grid>
-<Grid size={{ md: 6, xs: 12 }}>
-<TextField
-                fullWidth
-                type="text"
-                name="code"
-                value={formik.values.code}
-                onChange={formik.handleChnange}
-                label="Code"
-                onBlur={formik.handleBlur}
-                error={formik.touched.code && Boolean(formik.errors.code)}
-                helperText={formik.touched.code && formik.errors.code}
-              />
-</Grid>
-<Grid size={{ md: 6, xs: 12 }}>
-<TextField
-                fullWidth
-                type="text"
-                name="upwork"
-                value={formik.values.upwork}
-                onChange={formik.handleChnange}
-                label="Upwork"
-                onBlur={formik.handleBlur}
-                error={formik.touched.upwork && Boolean(formik.errors.upwork)}
-                helperText={formik.touched.upwork && formik.errors.upwork}
-              />
-</Grid>
-<Grid size={{ md: 6, xs: 12 }}>
-<TextField
-                fullWidth
-                type="text"
-                name="currecyCode"
-                value={formik.values.currecyCode}
-                onChange={formik.handleChnange}
-                label="Currecy Code"
-                onBlur={formik.handleBlur}
-                error={formik.touched.currecyCode && Boolean(formik.errors.currecyCode)}
-                helperText={formik.touched.currecyCode && formik.errors.currecyCode}
+                name="currencyCode"
+                value={formik.values.currencyCode}
+                onChange={formik.handleChange}
+                label="Currency Code"
               />
 </Grid>
 <Grid size={{ md: 6, xs: 12 }}>
@@ -240,7 +219,7 @@ const Customer=()=>{
                 type="text"
                 name="currency"
                 value={formik.values.currency}
-                onChange={formik.handleChnange}
+                onChange={formik.handleChange}
                 label="Currency"
                 onBlur={formik.handleBlur}
                 error={formik.touched.currency && Boolean(formik.errors.currency)}
@@ -252,6 +231,11 @@ const Customer=()=>{
           options={status}
           getOptionLabel={(option) => option.label}
           getOptionKey={(option)=>option.id}
+          value={status.find(option => option.id === formik.values.status) || null}
+          onChange={(event, newValue) => {
+            formik.setFieldValue("status", newValue ? newValue.id : 0);
+          }}
+                  onBlur={formik.handleBlur}
           renderInput={(params) => (
             <TextField {...params} label="Status" variant="outlined" fullWidth />
           )}
@@ -262,38 +246,16 @@ const Customer=()=>{
           options={country}
           getOptionLabel={(option) => option.label}
           getOptionKey={(option)=>option.id}
+          value={country.find(option => option.id === formik.values.countryCode) || null}
+  onChange={(event, newValue) => {
+    formik.setFieldValue("countryCode", newValue ? newValue.id : 0);
+  }}
+          onBlur={formik.handleBlur}
           renderInput={(params) => (
             <TextField {...params} label="Country" variant="outlined" fullWidth />
           )}
         />
 </Grid>
-<Grid size={{ md: 6, xs: 12 }}>
-<TextField
-                fullWidth
-                type="text"
-                name="attendPerson"
-                value={formik.values.attendPerson}
-                onChange={formik.handleChnange}
-                label="Attend Person"
-                onBlur={formik.handleBlur}
-                error={formik.touched.attendPerson && Boolean(formik.errors.attendPerson)}
-                helperText={formik.touched.attendPerson && formik.errors.attendPerson}
-              />
-</Grid>
-<Grid size={{ md: 6, xs: 12 }}>
-<TextField
-                fullWidth
-                type="text"
-                name="attendDesignation"
-                value={formik.values.attendDesignation}
-                onChange={formik.handleChnange}
-                label="Attend Designation"
-                onBlur={formik.handleBlur}
-                error={formik.touched.attendDesignation && Boolean(formik.errors.attendDesignation)}
-                helperText={formik.touched.attendDesignation && formik.errors.attendDesignation}
-              />
-</Grid>
-
 </Grid>
 <Grid container spacing={2}>
 <Grid size={{xs: 12 }}>
@@ -302,9 +264,9 @@ const Customer=()=>{
           <Icon>taskalt</Icon>
           <Span sx={{ pl: 1, textTransform: "capitalize" }}>Save</Span>
         </Button>
-        <Button sx={{mx:2}} color="error" variant="contained" type="button">
+        <Button sx={{mx:2}} color="error" variant="contained" type="button" onClick={() => formik.resetForm()}>
           <Icon>cancel</Icon>
-          <Span sx={{ pl: 1, textTransform: "capitalize" }}>Cancel</Span>
+          <Span sx={{ pl: 1, textTransform: "capitalize" }}>Clear</Span>
         </Button>
   </div>
 
