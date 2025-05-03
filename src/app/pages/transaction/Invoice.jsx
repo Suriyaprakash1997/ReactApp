@@ -22,10 +22,16 @@ import { invoiceValidator } from "app/validation/masterValidation";
 import CustomDatePicker from "app/element/CustomDatePicker";
 import dayjs from 'dayjs';
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete";
-import { DataGrid } from "@mui/x-data-grid";
-import { Margin } from "@mui/icons-material";
+import { GetInvoiceNo, GetDropdown, GetCustomer } from "../../../services/Transaction/InvoiceService";
+
 const Invoice = () => {
     const date=Date.now();
+    const [customers,setCustomers]=useState([])
+    const [customerDetail,setCustomerDetail]=useState({
+      companyName:'',
+      address:'',
+      currency:''
+    })
       const navigate=useNavigate();
       const NavigateInvoice=()=>{
     navigate('/invoicelist')
@@ -33,10 +39,11 @@ const Invoice = () => {
        const initialValues={
               invoiceNo: "",
               invoiceDate:dayjs(date),
-              customerName:"",
+              customerId:"",
               pono:"",
               notes:""
             }
+          
               const formik = useFormik({
                 initialValues: initialValues,
                 validationSchema:invoiceValidator,
@@ -44,10 +51,50 @@ const Invoice = () => {
                   console.log(values);
                 },
               });
-              const status = [
-                {id:1, label: "Active" },
-                { id:2,label: "Non-Active" },
-              ];
+              useEffect(()=>{
+                GetInvoiceNumber()
+                GetDropdownAsync()
+              },[])
+              const GetInvoiceNumber = async() =>{
+  try{
+  let res=await GetInvoiceNo();
+  let data=res.data;
+  if (formik) {
+    formik.setFieldValue('invoiceNo', data.InvoiceNo);
+  }
+  }
+  catch(error){
+    console.error(error.message);
+  }
+              }
+              const GetDropdownAsync = async() =>{
+                try{
+                  let params={
+                    mode:'customer'
+                  }
+                      let res= await GetDropdown(params)
+                      let data=res.data;
+                      setCustomers(data)
+                }
+                catch(err){
+                 console.error(err);
+                }
+              }
+              const GetCustomerDetails = async(id) =>{
+                try{
+                      let res= await GetCustomer(id)
+                      let data=res.data;
+                      setCustomerDetail({
+                        companyName:data.companyName,
+                        address:data.address,
+                        currency:data.currency
+                      })            
+                }
+                catch(err){
+                 console.error(err);
+
+                }
+              }
               const initialItem = {
                 description: "",
                 resources: "",
@@ -85,6 +132,13 @@ const Invoice = () => {
               const handleClear = () => {
                 setItems([initialItem]);
               };
+              const handleCustomerChange = async (event, value) =>{
+                if(value?.UID){
+                  formik.setFieldValue("customerId", value?.UID || '');
+                  await GetCustomerDetails(value?.UID)
+                }
+                  
+              }
   return (
     <>
        <Card>
@@ -129,9 +183,12 @@ helperText={formik.touched.invoiceDate && formik.errors.invoiceDate}
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
                <Autocomplete
-                      options={status}
-                      getOptionLabel={(option) => option.label}
-                      getOptionKey={(option)=>option.id}
+                      options={customers}
+                      onChange={handleCustomerChange}
+                      getOptionLabel={(option) => option.CustomerName}
+                      getOptionKey={(option)=>option.UID}
+                      name="customerId"
+                      value={customers.find(c => c.UID === formik.values.customerId) || null}
                       renderInput={(params) => (
                         <TextField {...params} label="Customer Name" variant="outlined" fullWidth />
                       )}
@@ -142,7 +199,7 @@ helperText={formik.touched.invoiceDate && formik.errors.invoiceDate}
                                 fullWidth
                                 type="text"
                                  label="Company Name"
-                                value={formik.values.customerName} 
+                                value={customerDetail.companyName} 
                                 slotProps={{
                                     input: {
                                       readOnly: true,
@@ -155,7 +212,7 @@ helperText={formik.touched.invoiceDate && formik.errors.invoiceDate}
                                 fullWidth
                                 type="text"
                                  label="Customer Address"
-                                value={formik.values.customerName} 
+                                value={customerDetail.address} 
                                 slotProps={{
                                     input: {
                                       readOnly: true,
@@ -168,38 +225,12 @@ helperText={formik.touched.invoiceDate && formik.errors.invoiceDate}
                                 fullWidth
                                 type="text"
                                  label="Currency"
-                                value={formik.values.customerName}   
+                                value={customerDetail.currency}   
                                 slotProps={{
                                     input: {
                                       readOnly: true,
                                     },
                                   }}                        
-                              />
-            </Grid>
-            <Grid size={{ md: 6, xs: 12 }}>
-                <TextField
-                                fullWidth
-                                type="text"
-                                 label="Attention Person"
-                                value={formik.values.customerName} 
-                                slotProps={{
-                                    input: {
-                                      readOnly: true,
-                                    },
-                                  }}                          
-                              />
-            </Grid>
-            <Grid size={{ md: 6, xs: 12 }}>
-                <TextField
-                                fullWidth
-                                type="text"
-                                 label="Attention Person"
-                                value={formik.values.customerName}  
-                                slotProps={{
-                                    input: {
-                                      readOnly: true,
-                                    },
-                                  }}                         
                               />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
